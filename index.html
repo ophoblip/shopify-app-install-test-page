@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Shopify App Install</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      :root {
+        --bg: #0b0f14;
+        --card: #121822;
+        --muted: #1b2230;
+        --text: #e5e7eb;
+        --subtext: #9ca3af;
+        --accent: #22c55e;
+        --accent-hover: #16a34a;
+        --border: rgba(255, 255, 255, 0.06);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: "Inter", sans-serif;
+        background: radial-gradient(circle at top, #121822, var(--bg));
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: var(--text);
+      }
+
+      .card {
+        width: 100%;
+        max-width: 540px;
+        background: var(--card);
+        border-radius: 18px;
+        padding: 32px;
+        border: 1px solid var(--border);
+      }
+
+      h1 {
+        margin: 0 0 6px;
+        text-align: center;
+      }
+
+      p {
+        text-align: center;
+        color: var(--subtext);
+        margin-bottom: 24px;
+      }
+
+      .params {
+        display: grid;
+        gap: 12px;
+        margin-bottom: 20px;
+      }
+
+      .row {
+        display: grid;
+        grid-template-columns: 1fr 1fr auto;
+        gap: 8px;
+      }
+
+      input {
+        background: var(--muted);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 10px 12px;
+        color: var(--text);
+        font-size: 13px;
+      }
+
+      input::placeholder {
+        color: #6b7280;
+      }
+
+      button {
+        background: var(--accent);
+        border: none;
+        border-radius: 10px;
+        padding: 10px 14px;
+        color: #04130a;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      button.secondary {
+        background: transparent;
+        color: var(--subtext);
+      }
+
+      button:hover {
+        background: var(--accent-hover);
+      }
+
+      .install {
+        width: 100%;
+        padding: 14px;
+        font-size: 15px;
+        margin-top: 14px;
+      }
+
+      .preview {
+        background: var(--muted);
+        border-radius: 10px;
+        padding: 10px;
+        font-size: 11px;
+        color: var(--subtext);
+        word-break: break-all;
+        margin-top: 12px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="card">
+      <h1>Install Shopify App</h1>
+      <p>Set query parameters before installation</p>
+
+      <div id="params" class="params"></div>
+
+      <button class="secondary" onclick="addRow()">＋ Add parameter</button>
+
+      <div class="preview" id="preview"></div>
+
+      <button class="install" onclick="install()">Install App</button>
+    </div>
+
+    <script>
+      const BACKEND_INSTALL_URL =
+        "https://p2pbq25uzj.execute-api.eu-west-1.amazonaws.com/shopify/app/install";
+
+      const container = document.getElementById("params");
+      const preview = document.getElementById("preview");
+
+      function addRow(key = "", value = "") {
+        const row = document.createElement("div");
+        row.className = "row";
+
+        row.innerHTML = `
+          <input placeholder="key" value="${key}" />
+          <input placeholder="value" value="${value}" />
+          <button onclick="this.parentElement.remove(); updatePreview()">✕</button>
+        `;
+
+        container.appendChild(row);
+        updatePreview();
+      }
+
+      function updatePreview() {
+        const params = new URLSearchParams();
+
+        [...container.children].forEach((row) => {
+          const [keyInput, valueInput] = row.querySelectorAll("input");
+          if (keyInput.value) {
+            params.append(keyInput.value, valueInput.value);
+          }
+        });
+
+        preview.innerText = `${BACKEND_INSTALL_URL}?${params.toString()}`;
+      }
+
+      function install() {
+        const params = new URLSearchParams();
+
+        [...container.children].forEach((row) => {
+          const [keyInput, valueInput] = row.querySelectorAll("input");
+          if (keyInput.value) {
+            params.append(keyInput.value, valueInput.value);
+          }
+        });
+
+        window.location.href = `${BACKEND_INSTALL_URL}?${params.toString()}`;
+      }
+
+      // Pre-fill common Shopify params
+      addRow("shop", "qlyp-ai-test-store.myshopify.com");
+      addRow("host", "test_host");
+      addRow("hmac", "test_hmac");
+      addRow("timestamp", Date.now().toString());
+    </script>
+  </body>
+</html>

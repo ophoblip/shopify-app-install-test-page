@@ -39,7 +39,7 @@
 
       .card {
         width: 100%;
-        max-width: 540px;
+        max-width: 560px;
         background: var(--card);
         border-radius: 18px;
         padding: 32px;
@@ -60,7 +60,7 @@
       .params {
         display: grid;
         gap: 12px;
-        margin-bottom: 20px;
+        margin-bottom: 18px;
       }
 
       .row {
@@ -78,10 +78,6 @@
         font-size: 13px;
       }
 
-      input::placeholder {
-        color: #6b7280;
-      }
-
       button {
         background: var(--accent);
         border: none;
@@ -95,10 +91,6 @@
       button.secondary {
         background: transparent;
         color: var(--subtext);
-      }
-
-      button:hover {
-        background: var(--accent-hover);
       }
 
       .install {
@@ -123,7 +115,7 @@
   <body>
     <div class="card">
       <h1>Install Shopify App</h1>
-      <p>Set query parameters before installation</p>
+      <p>Edit parameters — preview updates instantly</p>
 
       <div id="params" class="params"></div>
 
@@ -146,8 +138,8 @@
         row.className = "row";
 
         row.innerHTML = `
-          <input placeholder="key" value="${key}" />
-          <input placeholder="value" value="${value}" />
+          <input placeholder="key" value="${key}" oninput="updatePreview()" />
+          <input placeholder="value" value="${value}" oninput="updatePreview()" />
           <button onclick="this.parentElement.remove(); updatePreview()">✕</button>
         `;
 
@@ -155,7 +147,7 @@
         updatePreview();
       }
 
-      function updatePreview() {
+      function buildParams() {
         const params = new URLSearchParams();
 
         [...container.children].forEach((row) => {
@@ -165,20 +157,15 @@
           }
         });
 
-        preview.innerText = `${BACKEND_INSTALL_URL}?${params.toString()}`;
+        return params;
+      }
+
+      function updatePreview() {
+        preview.innerText = `${BACKEND_INSTALL_URL}?${buildParams().toString()}`;
       }
 
       function install() {
-        const params = new URLSearchParams();
-
-        [...container.children].forEach((row) => {
-          const [keyInput, valueInput] = row.querySelectorAll("input");
-          if (keyInput.value) {
-            params.append(keyInput.value, valueInput.value);
-          }
-        });
-
-        window.location.href = `${BACKEND_INSTALL_URL}?${params.toString()}`;
+        window.location.href = `${BACKEND_INSTALL_URL}?${buildParams().toString()}`;
       }
 
       // Pre-fill common Shopify params
